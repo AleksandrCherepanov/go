@@ -1,0 +1,47 @@
+syntax = "proto3";
+package ova.link.api;
+
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+
+option go_package = "/ova-link-api;ova_link_api";
+
+message CreateLinkRequest {
+  uint64 user_id = 1;
+  string url = 2;
+  string description = 3;
+  repeated string tags = 4;
+}
+
+message DeleteLinkRequest {
+  uint64 id = 1;
+}
+
+message DescribeLinkRequest {
+  uint64 id = 1;
+}
+
+message DescribeLinkResponse {
+  uint64 id = 1;
+  uint64 user_id = 2;
+  string url = 3;
+  string description = 4;
+  repeated string tags = 5;
+  google.protobuf.Timestamp date_created = 6;
+}
+
+message ListLinkRequest {
+  optional uint64 limit = 1;
+  optional uint64 offset = 2;
+}
+
+message ListLinkResponse {
+  repeated DescribeLinkResponse items = 1;
+}
+
+service LinkAPI {
+  rpc CreateLink(CreateLinkRequest) returns (google.protobuf.Empty) {}
+  rpc DescribeLink(DescribeLinkRequest) returns (DescribeLinkResponse) {}
+  rpc ListLink(ListLinkRequest) returns (ListLinkResponse) {}
+  rpc DeleteLink(DeleteLinkRequest) returns (google.protobuf.Empty) {}
+}
