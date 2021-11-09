@@ -1,6 +1,7 @@
 package tinkoff
 
 import (
+	"encoding/json"
 	"errors"
 	"io"
 	"net/http"
@@ -22,12 +23,12 @@ func New(token string, accountId string, url string) API {
 	}
 }
 
-func (api API) Portfolio() (string, error) {
+func (api API) Portfolio() (*Portfolio, error) {
 	url := api.url + "/portfolio?brokerAccountId=" + api.accountId
 
 	httpRequest, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
-		return "", errors.New(errorPrefix + err.Error())
+		return nil, errors.New(errorPrefix + err.Error())
 	}
 
 	httpRequest.Header.Set("Authorization", "Bearer "+api.token)
@@ -35,13 +36,19 @@ func (api API) Portfolio() (string, error) {
 	client := http.Client{}
 	response, err := client.Do(httpRequest)
 	if err != nil {
-		return "", errors.New(errorPrefix + err.Error())
+		return nil, errors.New(errorPrefix + err.Error())
 	}
 
 	body, err := io.ReadAll(response.Body)
 	if err != nil {
-		return "", errors.New(errorPrefix + err.Error())
+		return nil, errors.New(errorPrefix + err.Error())
 	}
 
-	return string(body), nil
+	portfolio := &Portfolio{}
+	err = json.Unmarshal(body, portfolio)
+	if err != nil {
+		return nil, errors.New(errorPrefix + err.Error())
+	}
+
+	return portfolio, nil
 }
